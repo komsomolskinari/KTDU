@@ -121,13 +121,20 @@ namespace KTDU.Parser
         public string DisplayName { get; private set; }
         public string Content { get; private set; }
 
-        private static readonly Regex TextRegex = new Regex(@"^(?:<(?<speaker>.*?)(?:\/(?<as>.*?))?>)?(?<text>.+)$",
+        private static readonly Regex TextRegex = new Regex(@"^(?:<(?<speaker>.+?)(?:\/(?<as>.+?))?>)?(?<text>[^\<].*)$",
+            RegexOptions.CultureInvariant);
+
+        private static readonly Regex TextRegex2 = new Regex(@"^(?:【(?<speaker>.+?)(?:\/(?<as>.+?))?】)?(?<text>[^【].*)$",
             RegexOptions.CultureInvariant);
 
         public static TextEntry Parse(string line)
         {
-            Match m = TextRegex.Match(line.Trim());
+            string l = line.Trim();
+            if (string.IsNullOrWhiteSpace(l)) throw new FormatException();
+            Regex re = l[0] == '<' ? TextRegex : TextRegex2;
+            Match m = re.Match(l);
             if (!m.Success) throw new FormatException();
+
             string d = m.Groups["speaker"].Value;
             string r = m.Groups["as"].Value;
             string t = m.Groups["text"].Value;

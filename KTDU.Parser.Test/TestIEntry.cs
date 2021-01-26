@@ -66,7 +66,12 @@ namespace KTDU.Parser.Test
             Assert.AreEqual("b", t3.Content);
             Assert.AreEqual("a", t3.Speaker);
             Assert.AreEqual("a", t3.DisplayName);
+            TextEntry t4 = TextEntry.Parse("【a/b】c");
+            Assert.AreEqual("c", t4.Content);
+            Assert.AreEqual("a", t4.Speaker);
+            Assert.AreEqual("b", t4.DisplayName);
             Assert.ThrowsException<FormatException>(() => TextEntry.Parse(""));
+            Assert.ThrowsException<FormatException>(() => TextEntry.Parse("<>"));
         }
 
         [TestMethod]

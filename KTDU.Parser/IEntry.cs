@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
@@ -10,9 +11,25 @@ namespace KTDU.Parser
 
     public struct CallEntry : IEntry
     {
-        public string Name { get; private set; }
-        public ImmutableDictionary<string, string> Parameters { get; private set; }
-        public ImmutableArray<(string key, string value)> ParametersList { get; private set; }
+        public string Name { get; }
+        public ImmutableDictionary<string, string> Parameters { get; }
+        public ImmutableArray<(string key, string value)> ParametersList { get; }
+
+        public CallEntry(string name, IEnumerable<(string, string)> param)
+        {
+            ImmutableDictionary<string, string>.Builder d = ImmutableDictionary.CreateBuilder<string, string>();
+            ImmutableArray<(string, string)>.Builder a = ImmutableArray.CreateBuilder<(string, string)>();
+
+            foreach ((string k, string v) kv in param)
+            {
+                a.Add(kv);
+                d.Add(kv.k, kv.v);
+            }
+
+            Name = name;
+            Parameters = d.ToImmutable();
+            ParametersList = a.ToImmutable();
+        }
 
         public static CallEntry Parse(string line)
         {
@@ -38,8 +55,7 @@ namespace KTDU.Parser
             string name = state.ReadUntil(new[] {' '});
             state.Skip(new[] {' '});
 
-            ImmutableDictionary<string, string>.Builder d = ImmutableDictionary.CreateBuilder<string, string>();
-            ImmutableArray<(string, string)>.Builder a = ImmutableArray.CreateBuilder<(string, string)>();
+            List<(string, string)> l = new List<(string, string)>();
             while (state.Next() != null)
             {
                 // key key=val key="val"
@@ -48,8 +64,7 @@ namespace KTDU.Parser
                 state.Skip(new[] {' '});
                 if (state.Next() != '=')
                 {
-                    d.Add(key, null);
-                    a.Add((key, null));
+                    l.Add((key, null));
                     continue;
                 }
 
@@ -80,16 +95,10 @@ namespace KTDU.Parser
                 }
 
                 state.Skip(new[] {' '});
-                d.Add(key, val);
-                a.Add((key, val));
+                l.Add((key, val));
             }
 
-            return new CallEntry
-            {
-                Name = name,
-                Parameters = d.ToImmutable(),
-                ParametersList = a.ToImmutable(),
-            };
+            return new CallEntry(name, l);
         }
     }
 
@@ -121,10 +130,12 @@ namespace KTDU.Parser
         public string DisplayName { get; private set; }
         public string Content { get; private set; }
 
-        private static readonly Regex TextRegex = new Regex(@"^(?:<(?<speaker>.+?)(?:\/(?<as>.+?))?>)?(?<text>[^\<].*)$",
+        private static readonly Regex TextRegex = new Regex(
+            @"^(?:<(?<speaker>.+?)(?:\/(?<as>.+?))?>)?(?<text>[^\<].*)$",
             RegexOptions.CultureInvariant);
 
-        private static readonly Regex TextRegex2 = new Regex(@"^(?:【(?<speaker>.+?)(?:\/(?<as>.+?))?】)?(?<text>[^【].*)$",
+        private static readonly Regex TextRegex2 = new Regex(
+            @"^(?:【(?<speaker>.+?)(?:\/(?<as>.+?))?】)?(?<text>[^【].*)$",
             RegexOptions.CultureInvariant);
 
         public static TextEntry Parse(string line)

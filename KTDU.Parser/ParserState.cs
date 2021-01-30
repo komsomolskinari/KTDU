@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KTDU.Parser
@@ -8,7 +7,7 @@ namespace KTDU.Parser
     {
         private readonly string _text;
         private int _pointer;
-        
+
         public ParserState(string text)
         {
             _text = new Regex("\r\n?").Replace(text, "\n");
@@ -30,7 +29,7 @@ namespace KTDU.Parser
 
         public string ReadLine()
         {
-            var r = ReadUntil(new char[] {'\n'});
+            string r = ReadUntil(new[] {'\n'});
             _pointer++;
             return r;
         }

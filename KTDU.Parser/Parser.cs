@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.IO;
+﻿using System.Collections.Immutable;
 
 namespace KTDU.Parser
 {
@@ -34,6 +32,7 @@ namespace KTDU.Parser
                         break;
                 }
             }
+
             return builder.ToImmutable();
         }
     }

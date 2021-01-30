@@ -1,5 +1,4 @@
-﻿using KTDU.Parser;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace KTDU.Parser.Test
